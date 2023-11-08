@@ -5,6 +5,7 @@ import PostCreate from "../post-create";
 import { useState, Fragment } from "react";
 import { Alert, Sceleton, LOAD_STATUS } from "../../component/load";
 import { getDate } from "../../container/util/getDate";
+import PostItem from "../post-item";
 
 export default function Container() {
 	const [status, setStatus] = useState(null);
@@ -14,7 +15,7 @@ export default function Container() {
 	const getData = async () => {
 		setStatus(LOAD_STATUS.PROGRESS);
 		try {
-			const res = await fetch("http:localhost:4000/post-create",);
+			const res = await fetch("http://localhost:4000/post-list");
 			const data = await res.json();
 			if (res.ok) {
 				setData(convertData(data));
@@ -37,6 +38,9 @@ export default function Container() {
 		})),
 		isEmpty: raw.list.length === 0,
 	});
+	if (status === null) {
+		getData();
+	}
 	return (
 		<Grid>
 			<Box>
@@ -61,6 +65,19 @@ export default function Container() {
 			)}
 			{status === LOAD_STATUS.ERROR && (
 				<Alert status={status} message={message} />
+			)}
+			{status === LOAD_STATUS.SUCCESS && (
+				<Fragment>
+					{data.isEmpty ? (
+						<Alert message="Список постіи пустий" />
+					) : (
+						data.list.map((item) => (
+							<Fragment key={item.id}>
+								<PostItem {...item} />
+							</Fragment>
+						))
+					)}
+				</Fragment>
 			)}
 		</Grid>
 	);
